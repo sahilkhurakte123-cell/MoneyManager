@@ -12,4 +12,5 @@ public interface ProfileRepo extends JpaRepository<Profile,Long> {
 
     Optional<Profile> findByEmail(String email);
 
+    Optional<Profile> findByActivationToken(String activationToken);
 }

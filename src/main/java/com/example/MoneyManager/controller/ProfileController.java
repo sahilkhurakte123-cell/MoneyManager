@@ -6,9 +6,7 @@ import com.example.MoneyManager.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProfileController {
@@ -22,6 +20,17 @@ public class ProfileController {
     public ResponseEntity<ProfileDto> registerProfile(@RequestBody ProfileDto profileDto){
         ProfileDto registeredProfile = profileService.registerProfile(profileDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredProfile);
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateProfile(@RequestParam String token){
+        boolean isActivated = profileService.activateProfile(token);
+        if(isActivated){
+            return ResponseEntity.status(HttpStatus.OK).body("Activated");
+        }
+        else  {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid activation Token");
+        }
     }
 
 

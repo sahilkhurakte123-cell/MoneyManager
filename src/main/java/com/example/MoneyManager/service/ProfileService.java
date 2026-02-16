@@ -12,8 +12,11 @@ import java.util.UUID;
 @Service
 public class ProfileService {
 
+    private final ActivationEmailService activationEmailService;
+
     private final ProfileRepo profileRepo;
-    public ProfileService(ProfileRepo profileRepo) {
+    public ProfileService(ActivationEmailService activationEmailService, ProfileRepo profileRepo) {
+        this.activationEmailService = activationEmailService;
         this.profileRepo = profileRepo;
     }
 
@@ -24,6 +27,12 @@ public class ProfileService {
         newProfile = profileRepo.save(newProfile);
 
         ProfileDto newProfileDto = toDTO(newProfile);
+
+        String activationLink = "http://localhost:8080/api/v1.0/activate?token=" + newProfile.getActivationToken();
+        String subject = "Activate MoneyManager account";
+        String body = "Click on the given like to activate MoneyManager account " + activationLink;
+        activationEmailService.sendEmail(newProfile.getEmail(), subject, body);
+
         return newProfileDto;
     }
 
@@ -49,6 +58,16 @@ public class ProfileService {
                 .createdOn(profile.getCreatedOn())
                 .updatedOn(profile.getUpdatedOn())
                 .build();
+    }
+
+    public boolean activateProfile(String activationToken){
+        return profileRepo.findByActivationToken(activationToken)
+                .map(profile -> {
+                    profile.setIsActive(true);
+                    profileRepo.save(profile);
+                    return true;
+                })
+                .orElse(false);
     }
 
 }
