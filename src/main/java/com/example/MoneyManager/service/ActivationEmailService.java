@@ -13,7 +13,7 @@ public class ActivationEmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.properties.mail.smtp.from}")
+    @Value("${app.mail.from}")
     private String fromEmail;
 
 
