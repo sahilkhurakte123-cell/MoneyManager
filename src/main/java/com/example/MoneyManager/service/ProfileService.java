@@ -1,23 +1,36 @@
 package com.example.MoneyManager.service;
 
+import com.example.MoneyManager.dto.AuthDto;
 import com.example.MoneyManager.dto.ProfileDto;
 import com.example.MoneyManager.model.Profile;
 import com.example.MoneyManager.repository.ProfileRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.MoneyManager.utilities.JWTUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class ProfileService {
 
     private final ActivationEmailService activationEmailService;
-
+    private final PasswordEncoder passwordEncoder;
     private final ProfileRepo profileRepo;
-    public ProfileService(ActivationEmailService activationEmailService, ProfileRepo profileRepo) {
+    private final AuthenticationManager authenticationManager;
+    private final JWTUtil jwtUtil;
+
+    public ProfileService(ActivationEmailService activationEmailService, PasswordEncoder passwordEncoder, ProfileRepo profileRepo, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.activationEmailService = activationEmailService;
+        this.passwordEncoder = passwordEncoder;
         this.profileRepo = profileRepo;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     public ProfileDto registerProfile(ProfileDto profileDto){
@@ -41,7 +54,7 @@ public class ProfileService {
                 .id(profileDto.getId())
                 .fullname(profileDto.getFullname())
                 .email(profileDto.getEmail())
-                .password(profileDto.getPassword())
+                .password(passwordEncoder.encode(profileDto.getPassword()))
                 .profileImgUrl(profileDto.getProfileImgUrl())
                 .createdOn(profileDto.getCreatedOn())
                 .updatedOn(profileDto.getUpdatedOn())
@@ -70,4 +83,51 @@ public class ProfileService {
                 .orElse(false);
     }
 
+    public boolean isAccountActivated(String email){
+        return profileRepo.findByEmail(email)
+                .map(profile -> profile.getIsActive())
+                .orElse(false);
+    }
+
+    public Profile getCurrentProfile(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return profileRepo.findByEmail(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("Not found" +  authentication.getName()));
+    }
+
+    public ProfileDto getPublicProfile(String email){
+        Profile currentUser = null;
+        if(email == null){
+            currentUser = getCurrentProfile();
+        }
+        else{
+            currentUser = profileRepo.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Not found" +  email));
+        }
+
+        return ProfileDto.builder()
+                .id(currentUser.getId())
+                .fullname(currentUser.getFullname())
+                .email(currentUser.getEmail())
+                .password(currentUser.getPassword())
+                .profileImgUrl(currentUser.getProfileImgUrl())
+                .createdOn(currentUser.getCreatedOn())
+                .updatedOn(currentUser.getUpdatedOn())
+                .build();
+
+    }
+
+    public Map<String, Object> authenticateAndGenerateToken(AuthDto authDto) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword()));
+
+            String token = jwtUtil.generateToken(authDto.getEmail())    ;
+            return Map.of(
+                    "token", token,
+                    "user", getPublicProfile(authDto.getEmail()));
+
+        }catch (Exception e){
+            throw new UsernameNotFoundException("Invalid email or password");
+        }
+    }
 }
