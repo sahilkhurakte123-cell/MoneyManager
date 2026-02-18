@@ -41,13 +41,22 @@ public class ProfileService {
 
         ProfileDto newProfileDto = toDTO(newProfile);
 
-        String activationLink = "http://localhost:8080/api/v1.0/activate?token=" + newProfile.getActivationToken();
+        String activationLink = "http://localhost:8080/activate?token="
+                + newProfile.getActivationToken();
+
         String subject = "Activate MoneyManager account";
-        String body = "Click on the given like to activate MoneyManager account " + activationLink;
-        activationEmailService.sendEmail(newProfile.getEmail(), subject, body);
+        String body = "Click on the given link to activate MoneyManager account " + activationLink;
+
+        try {
+            activationEmailService.sendEmail(newProfile.getEmail(), subject, body);
+        } catch (Exception e) {
+            System.out.println("Email failed but user registered successfully");
+            e.printStackTrace();   // VERY useful for debugging
+        }
 
         return newProfileDto;
     }
+
 
     public Profile toEntity(ProfileDto profileDto){
         return Profile.builder()

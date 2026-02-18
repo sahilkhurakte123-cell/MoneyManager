@@ -36,21 +36,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/check").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/activate").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers("/check", "/activate", "/register", "/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .httpBasic(httpBasic ->
-                        httpBasic.authenticationEntryPoint((req, res, ex) -> {
-                            res.setStatus(401);
-                            res.setContentType("application/json");
-                            res.getWriter().write("{\"error\":\"Unauthorized\"}");
-                        })
                 );
 
         return http.build();
