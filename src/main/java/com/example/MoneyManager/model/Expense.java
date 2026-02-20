@@ -47,6 +47,7 @@ public class Expense {
     @JoinColumn(name = "profile_id",nullable = false)
     private Profile profile;
 
+    @PrePersist
     public void prePersist(){
         if(this.date == null){
             this.date = LocalDate.now();
