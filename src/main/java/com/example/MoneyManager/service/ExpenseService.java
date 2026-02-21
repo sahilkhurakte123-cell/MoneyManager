@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,18 @@ public class ExpenseService {
         else{
             throw new RuntimeException("Expense not found");
         }
+    }
+
+    public List<ExpenseDto> getLatest5ExpensesForCurrentUser() {
+        Profile profile = profileService.getCurrentProfile();
+        List<Expense> list = expenseRepo.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return list.stream().map(this::toDto).toList();
+    }
+
+    public BigDecimal getTotalExpensesForCurrentUser() {
+        Profile profile = profileService.getCurrentProfile();
+        BigDecimal total = expenseRepo.findTotalExpenseByProfileId(profile.getId());
+        return total!=null?total:BigDecimal.ZERO;
     }
 
     private Expense toEntity(ExpenseDto expenseDto, Profile profile, Category category) {

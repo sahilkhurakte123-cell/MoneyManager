@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -55,6 +56,18 @@ public class IncomeService {
         else{
             throw new RuntimeException("Income not found");
         }
+    }
+
+    public List<IncomeDto> getLatest5IncomesForCurrentUser() {
+        Profile profile = profileService.getCurrentProfile();
+        List<Income> list = incomeRepo.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return list.stream().map(this::toDto).toList();
+    }
+
+    public BigDecimal getTotalIncomesForCurrentUser() {
+        Profile profile = profileService.getCurrentProfile();
+        BigDecimal total = incomeRepo.findTotalIncomeByProfileId(profile.getId());
+        return total!=null?total:BigDecimal.ZERO;
     }
 
     private Income toEntity(IncomeDto incomeDto, Profile profile, Category category) {
