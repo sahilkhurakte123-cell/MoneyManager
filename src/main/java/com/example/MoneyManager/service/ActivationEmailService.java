@@ -5,6 +5,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+
 
 
 @Service
@@ -16,7 +18,7 @@ public class ActivationEmailService {
     @Value("${app.mail.from}")
     private String fromEmail;
 
-
+    @Async
     public void sendEmail(String to, String subject, String body){
 
         try {
