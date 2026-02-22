@@ -5,6 +5,7 @@ import com.example.MoneyManager.dto.ProfileDto;
 import com.example.MoneyManager.model.Profile;
 import com.example.MoneyManager.repository.ProfileRepo;
 import com.example.MoneyManager.utilities.JWTUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,9 @@ public class ProfileService {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
 
+    @Value("${app.activation.url}")
+    private String activationUrl;
+
     public ProfileService(ActivationEmailService activationEmailService, PasswordEncoder passwordEncoder, ProfileRepo profileRepo, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.activationEmailService = activationEmailService;
         this.passwordEncoder = passwordEncoder;
@@ -41,7 +45,7 @@ public class ProfileService {
 
         ProfileDto newProfileDto = toDTO(newProfile);
 
-        String activationLink = "http://localhost:8080/activate?token="
+        String activationLink = activationUrl+"/activate?token="
                 + newProfile.getActivationToken();
 
         String subject = "Activate MoneyManager account";
