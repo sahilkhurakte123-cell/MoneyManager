@@ -37,7 +37,7 @@ public class EmailController {
         Profile profile = profileService.getCurrentProfile();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         excelService.writeExpenseToExcel(baos,expenseService.getCurrentMonthExpensesForCurrentUser());
-        emailService.sendEmailWithAttatchment(profile.getEmail(), "Your Expense Excel Report", "PFA your expense report for current month", baos.toByteArray(), "income_report.xlsx");
+        emailService.sendEmailWithAttatchment(profile.getEmail(), "Your Expense Excel Report", "PFA your expense report for current month", baos.toByteArray(), "expense_report.xlsx");
         return ResponseEntity.ok(null);
     }
 
