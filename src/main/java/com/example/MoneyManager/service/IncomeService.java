@@ -77,6 +77,7 @@ public class IncomeService {
         return list.stream().map(this::toDto).toList();
     }
 
+
     private Income toEntity(IncomeDto incomeDto, Profile profile, Category category) {
         return Income.builder()
                 .name(incomeDto.getName())
