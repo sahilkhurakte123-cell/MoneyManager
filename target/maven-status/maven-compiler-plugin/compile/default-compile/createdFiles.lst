@@ -11,6 +11,7 @@ com/example/MoneyManager/configuration/SecurityConfig.class
 com/example/MoneyManager/dto/CategoryDto.class
 com/example/MoneyManager/dto/RecentTransactionsDto$RecentTransactionsDtoBuilder.class
 com/example/MoneyManager/controller/ProfileController.class
+com/example/MoneyManager/controller/EmailController.class
 com/example/MoneyManager/dto/IncomeDto.class
 com/example/MoneyManager/controller/IncomeController.class
 com/example/MoneyManager/controller/CategoryController.class
@@ -25,6 +26,7 @@ com/example/MoneyManager/service/ExpenseService$ExpenseServiceBuilder.class
 com/example/MoneyManager/controller/ExpenseController.class
 com/example/MoneyManager/dto/RecentTransactionsDto.class
 com/example/MoneyManager/security/JWTRequestFilter.class
+com/example/MoneyManager/controller/ExcelController.class
 com/example/MoneyManager/model/Income$IncomeBuilder.class
 com/example/MoneyManager/dto/AuthDto.class
 com/example/MoneyManager/service/CategoryService.class
@@ -35,10 +37,12 @@ com/example/MoneyManager/service/IncomeService$IncomeServiceBuilder.class
 com/example/MoneyManager/dto/ExpenseDto$ExpenseDtoBuilder.class
 com/example/MoneyManager/model/Profile$ProfileBuilder.class
 com/example/MoneyManager/repository/ProfileRepo.class
+com/example/MoneyManager/configuration/AsyncConfig.class
 com/example/MoneyManager/dto/IncomeDto$IncomeDtoBuilder.class
 com/example/MoneyManager/dto/FilterDto$FilterDtoBuilder.class
 com/example/MoneyManager/dto/ExpenseDto.class
 com/example/MoneyManager/service/IncomeService.class
+com/example/MoneyManager/service/ExcelService.class
 com/example/MoneyManager/MoneyManagerApplication.class
 com/example/MoneyManager/model/Income.class
 com/example/MoneyManager/dto/ProfileDto$ProfileDtoBuilder.class
