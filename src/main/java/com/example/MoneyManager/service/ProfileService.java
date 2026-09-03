@@ -5,7 +5,6 @@ import com.example.MoneyManager.dto.ProfileDto;
 import com.example.MoneyManager.model.Profile;
 import com.example.MoneyManager.repository.ProfileRepo;
 import com.example.MoneyManager.utilities.JWTUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,17 +19,12 @@ import java.util.UUID;
 @Service
 public class ProfileService {
 
-    private final ActivationEmailService activationEmailService;
     private final PasswordEncoder passwordEncoder;
     private final ProfileRepo profileRepo;
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
 
-    @Value("${app.activation.url}")
-    private String activationUrl;
-
-    public ProfileService(ActivationEmailService activationEmailService, PasswordEncoder passwordEncoder, ProfileRepo profileRepo, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
-        this.activationEmailService = activationEmailService;
+    public ProfileService(PasswordEncoder passwordEncoder, ProfileRepo profileRepo, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.passwordEncoder = passwordEncoder;
         this.profileRepo = profileRepo;
         this.authenticationManager = authenticationManager;
@@ -41,24 +35,10 @@ public class ProfileService {
 
         Profile newProfile = toEntity(profileDto);
         newProfile.setActivationToken(UUID.randomUUID().toString());
+        newProfile.setIsActive(true);
         newProfile = profileRepo.save(newProfile);
 
-        ProfileDto newProfileDto = toDTO(newProfile);
-
-        String activationLink = activationUrl+"/activate?token="
-                + newProfile.getActivationToken();
-
-        String subject = "Activate MoneyManager account";
-        String body = "Click on the given link to activate MoneyManager account " + activationLink;
-
-        try {
-            activationEmailService.sendEmail(newProfile.getEmail(), subject, body);
-        } catch (Exception e) {
-            System.out.println("Email failed but user registered successfully");
-            e.printStackTrace();   // VERY useful for debugging
-        }
-
-        return newProfileDto;
+        return toDTO(newProfile);
     }
 
 
