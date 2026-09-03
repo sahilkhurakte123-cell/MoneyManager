@@ -10,14 +10,21 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+
 @Component
 public class JWTUtil {
 
-    private final String SECRET =
-            "my_super_secret_key_for_money_manager_project_1234567890";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final SecretKey key =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+    private SecretKey key;
+
+    @PostConstruct
+    private void init() {
+        key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
 
     // Token validity (e.g. 1 day)
