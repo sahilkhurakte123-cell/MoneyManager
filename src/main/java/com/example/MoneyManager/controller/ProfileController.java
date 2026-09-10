@@ -4,6 +4,7 @@ import com.example.MoneyManager.dto.AuthDto;
 import com.example.MoneyManager.dto.ProfileDto;
 import com.example.MoneyManager.repository.ProfileRepo;
 import com.example.MoneyManager.service.ProfileService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,12 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final LoginAttemptService loginAttemptService;
+
+    @Value("${guest.email}")
+    private String guestEmail;
+
+    @Value("${guest.password}")
+    private String guestPassword;
 
     public ProfileController(ProfileService profileService, LoginAttemptService loginAttemptService) {
         this.profileService = profileService;
@@ -72,6 +79,16 @@ public class ProfileController {
     public ResponseEntity<ProfileDto> getPublicProfile(){
         ProfileDto profileDto = profileService.getPublicProfile(null);
         return ResponseEntity.status(HttpStatus.OK).body(profileDto);
+    }
+
+    @PostMapping("/guest-login")
+    public ResponseEntity<Map<String, Object>> guestLogin() {
+        AuthDto guestAuth = AuthDto.builder()
+                .email(guestEmail)
+                .password(guestPassword)
+                .build();
+        Map<String, Object> response = profileService.authenticateAndGenerateToken(guestAuth);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
