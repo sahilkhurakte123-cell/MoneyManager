@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+import com.example.MoneyManager.service.LoginAttemptService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +17,11 @@ import java.util.Map;
 public class ProfileController {
 
     private final ProfileService profileService;
-    public ProfileController(ProfileService profileService) {
+    private final LoginAttemptService loginAttemptService;
+
+    public ProfileController(ProfileService profileService, LoginAttemptService loginAttemptService) {
         this.profileService = profileService;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @PostMapping("/register")
@@ -40,6 +44,12 @@ public class ProfileController {
     @PostMapping("/auth/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody AuthDto authDto){
 
+        if (loginAttemptService.isBlocked(authDto.getEmail())) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of(
+                    "message", "Too many failed attempts, try again later"
+            ));
+        }
+
         try {
             if(!profileService.isAccountActivated(authDto.getEmail())){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
@@ -47,8 +57,10 @@ public class ProfileController {
                 ));
             }
             Map<String,Object>response =  profileService.authenticateAndGenerateToken(authDto);
+            loginAttemptService.loginSucceeded(authDto.getEmail());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }catch (Exception e){
+            loginAttemptService.loginFailed(authDto.getEmail());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", e.getMessage()
             ));
